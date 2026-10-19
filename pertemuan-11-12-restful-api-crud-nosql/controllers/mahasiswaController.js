@@ -13,19 +13,27 @@ exports.getAll = async (req, res) => {
   if (req.params.prodiId) {
     filter.prodiId = req.query.prodiId
   }
-  try {
-    const data = await Mahasiswa.find(filter).populate('prodId');
-    if (!data) throw { status: 404, message: "Tidak ditemukan" };
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ message: "Error :" + error })
-  }
+
 
   const page = Math.max(parseInt(req.query.page) || 1, 1);
   const limit = Math.min(parseInt(req.query.limit) || 10, MAX_LIMIT);
   const sortField = req.query.sort || "createdAt0"
   const projection = req.query.fields ? req.query.fields.split(",").join("") : "";
 
+  try {
+    const data = await Mahasiswa.find(filter)
+      .populate("prodiId")
+      .select(projection)
+      .sort({ [sortField]: 1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const total = await Mahasiswa.countDocuments(filter);
+    res.json({ data, page, limit, total });
+
+  } catch (error) {
+    res.status(500).json({ message: "Error: " + error.message });
+  }
   // TODO: panggil Mahasiswa.find(filter).populate('prodiId').select(projection)
   //   .sort({ [sortField]: 1 }).skip((page - 1) * limit).limit(limit)
   // TODO: hitung total dengan Mahasiswa.countDocuments(filter)
