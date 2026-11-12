@@ -10,6 +10,9 @@ function PageHeader({ judul }) {
         <Link to="/">Daftar Mahasiswa</Link>
         {" | "}
         <Link to="/tentang">Tentang</Link>
+        {" | "}
+        <Link to="/profile">Profile</Link>
+
       </nav>
     </header>
   );
